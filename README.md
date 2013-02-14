@@ -1,4 +1,5 @@
-Noisy-Terrain
-=============
+# Noisy-Terrain #
 
 A project which uses Perlin noise to procedurally generate terrain.
+
+On hold for now.
