@@ -2,4 +2,4 @@
 
 A project which uses Perlin noise to procedurally generate terrain.
 
-On hold for now.
+Originally planned in C++, I've decided to see if I can do it in Dart using WebGL.
