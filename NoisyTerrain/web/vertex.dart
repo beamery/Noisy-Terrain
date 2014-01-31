@@ -22,7 +22,7 @@ class Vertex {
   }
   
   Float32List get data {
-    Float32List floatList = new Float32List(9);
+    Float32List floatList = new Float32List(size);
     
     for (int i = 0; i < 3; i++) {
       floatList[i] = position.storage[i];

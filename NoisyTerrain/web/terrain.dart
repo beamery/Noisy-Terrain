@@ -4,6 +4,10 @@ class Terrain {
   Mesh mesh;
   
   Terrain(int rows, int cols) {
+    // To get an n by n grid, we actually need n+1 by n+1 vertices.
+    rows++;
+    cols++;
+    
     List<Vertex> vertices = new List<Vertex>(rows * cols);
     
     // Initialize the mesh array based on the height map
@@ -29,5 +33,9 @@ class Terrain {
       }
     }
     mesh = new Mesh(vertices, rows, cols);
+  }
+  
+  void draw(ShaderProgram program) {
+    mesh.draw(program);
   }
 }

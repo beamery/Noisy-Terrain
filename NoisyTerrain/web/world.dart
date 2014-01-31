@@ -52,8 +52,12 @@ class World {
   
   void drawScene(time) {
     mvPush();
+    mv.translate(0.0, 0.0, -12.0);
+    //mv.rotateX(PI / 4);
     
-    mv.translate(0.0, 0.0, -7.0);
+    mvPush();
+    
+    mv.translate(0.0, 0.0, 0.0);
     mv.rotateY((time / 1000) * PI / 2);
     
     // set up triangle buffer
@@ -66,6 +70,14 @@ class World {
     
     gl.drawArrays(TRIANGLES, 0, 3);
     
+    mvPop();
+    
+    // Draw terrain
+    mvPush();
+    mv.translate(-5.0, -1.0, 0.0);
+    //mv.scale(0.2, 0.2, 0.2);
+    terrain.draw(program);
+    mvPop();
     mvPop();
   }
 }
