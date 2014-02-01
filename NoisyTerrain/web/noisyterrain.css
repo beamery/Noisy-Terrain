@@ -15,3 +15,10 @@ h1, p {
 canvas {
   border: 1px solid black;
 }
+
+#fps_counter {
+  position: absolute;
+  margin: 5px;
+  color: white;
+  font-size: 12px;
+}

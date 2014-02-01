@@ -33,21 +33,27 @@ class World {
   
   void initEntities() {  
     // Create terrain with random height map
-    int rows = 10;
-    int cols = 10;
+    initTerrain(40, 40);
+  }
+  
+  /**
+   * Initialize terrain with a random height map. Increment rows
+   * and cols before creation because, in order to get an NxN grid,
+   * we need (N+1)x(N+1) vertices.
+   */
+  void initTerrain(int rows, int cols) {
+    rows++;
+    cols++;
+    
     Random rng = new Random();
     List<double> heightMap = new List<double>(rows * cols);
     for (int i = 0; i < heightMap.length; i++) {
       heightMap[i] = rng.nextDouble();
     }
-    terrain = new Terrain.fromHeightMap(heightMap, rows, cols);
+    terrain = new Terrain(rows, cols, heightMap);
   }
   
   void drawScene(time) {
-    mvPush();
-    mv.translate(0.0, 0.0, -15.0);
-    mv.rotateX(PI / 12);
-    
     mvPush();
     
     mv.translate(0.0, 0.0, 0.0);
@@ -67,10 +73,9 @@ class World {
     
     // Draw terrain
     mvPush();
-    mv.translate(-5.0, -1.0, 0.0);
+    mv.translate(-(terrain.sizeX / 2.0), -1.0, -(terrain.sizeZ / 2.0));
     //mv.scale(0.2, 0.2, 0.2);
     terrain.draw(program);
-    mvPop();
     mvPop();
   }
 }

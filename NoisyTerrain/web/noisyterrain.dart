@@ -13,11 +13,15 @@ part 'terrain.dart';
 part 'mesh.dart';
 part 'vertex.dart';
 part 'matrix.dart';
+part 'camera.dart';
 
 CanvasElement canvas = querySelector('#main_canvas');
 RenderingContext gl;
 Map<String, String> shaders;
+List<bool> curKeys;
+
 World world;
+Camera camera;
 
 /**
  * This is where initial program setup will be handled. Our rendering loop
@@ -26,7 +30,6 @@ World world;
  */
 void main() {
   mv = new Matrix4.identity();
-  proj = makePerspectiveMatrix(PI / 4, canvas.width / canvas.height, 1.0, 1000.0);
   
   // Get the rendering context we will be drawing to
   gl = canvas.getContext3d();
@@ -35,6 +38,19 @@ void main() {
   }
   gl.clearColor(0.3, 0.3, 0.3, 1.0);
   
+  // Initialize keypresses to false
+  curKeys = new List<bool>(256);
+  for (int i = 0; i < curKeys.length; i++) {
+    curKeys[i] = false;
+  }
+  // Set up input handlers
+  window.onKeyDown.listen((KeyboardEvent e) {
+    curKeys[e.keyCode] = true;
+  });
+  window.onKeyUp.listen((KeyboardEvent e) {
+    curKeys[e.keyCode] = false;
+  });
+  
   // Load program assets
   shaders = new Map<String, String>();
   Future assetsLoadedFuture = loadAssets();
@@ -42,6 +58,7 @@ void main() {
   // Initialize and start the simulation
   assetsLoadedFuture.then((_) {
     world = new World();
+    camera = new Camera();
     
     // Start the render loop
     tick(0);
@@ -64,13 +81,59 @@ Future loadAssets() {
 
 }
 
+var lastTime = 0.0;
+var frames = 0;
+var frameTime = 0.0;
+var fpsCounter = querySelector('#fps_counter');
 void tick(time) {
   window.requestAnimationFrame(tick);
   
+  // Get elapsed time
+  var elapsedTime = (time - lastTime);
+  lastTime = time;
+  
+  // Count FPS
+  frames++;
+  frameTime += elapsedTime;
+  if (frameTime >= 1000) {
+    fpsCounter.innerHtml = 'FPS: $frames';
+    frameTime = 0.0;
+    frames = 0;
+  }
+
+  // Set up GL stuff
+  proj = makePerspectiveMatrix(PI / 4, canvas.width / canvas.height, 1.0, 1000.0);
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
   gl.enable(DEPTH_TEST);
   gl.disable(BLEND);
+  
+  // Handle keyboard input
+  handleKeys(elapsedTime);
  
+  mvPush();
+  // Handle camera position
+  mv.translate(0.0, 0.0, -15.0);
+  mv.rotateX(camera.rotation.x);
+  mv.rotateY(camera.rotation.y);
+  
+  // Draw world
   world.drawScene(time);
+  mvPop();
+}
+
+void handleKeys(time) {
+  time /= 1000.0; // convert time to seconds
+  if (curKeys[KeyCode.UP]) {
+    camera.rotation.x += time * PI / 2;
+  }
+  if (curKeys[KeyCode.DOWN]) {
+    camera.rotation.x -= time * PI / 2;
+  }
+  if (curKeys[KeyCode.LEFT]) {
+    camera.rotation.y -= time * PI / 2;
+  }
+  if (curKeys[KeyCode.RIGHT]) {
+    camera.rotation.y += time * PI / 2;
+  }
 }
