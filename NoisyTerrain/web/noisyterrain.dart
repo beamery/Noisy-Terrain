@@ -4,6 +4,7 @@ import 'dart:html';
 import 'dart:web_gl';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:async';
 import 'package:vector_math/vector_math.dart';
 
 part 'world.dart';
@@ -11,22 +12,12 @@ part 'shader_program.dart';
 part 'terrain.dart';
 part 'mesh.dart';
 part 'vertex.dart';
+part 'matrix.dart';
 
 CanvasElement canvas = querySelector('#main_canvas');
 RenderingContext gl;
+Map<String, String> shaders;
 World world;
-
-// Initialize modelview and projection matrices and operations
-Matrix4 mv;
-Matrix4 proj;
-List<Matrix4> mvStack = new List<Matrix4>();
-
-void mvPush() {
-  mvStack.add(new Matrix4.copy(mv));
-}
-void mvPop() {
-  mv = mvStack.removeLast();
-}
 
 /**
  * This is where initial program setup will be handled. Our rendering loop
@@ -44,9 +35,33 @@ void main() {
   }
   gl.clearColor(0.3, 0.3, 0.3, 1.0);
   
-  world = new World();
-  // Start the rendering loop
-  tick(0);
+  // Load program assets
+  shaders = new Map<String, String>();
+  Future assetsLoadedFuture = loadAssets();
+ 
+  // Initialize and start the simulation
+  assetsLoadedFuture.then((_) {
+    world = new World();
+    
+    // Start the render loop
+    tick(0);
+  });
+}
+
+Future loadAssets() {
+  // Load our assets
+  Future<String> vertFuture = HttpRequest.getString('phong.vert');
+  Future<String> fragFuture = HttpRequest.getString('phong.frag');
+  
+  // Once assets are done loading, add them to our global dictionaries
+  Future assetsLoadedFuture = Future.wait([vertFuture, fragFuture])
+      .then((shaderStrings) {
+        shaders['phong.vert'] = shaderStrings[0];
+        shaders['phong.frag'] = shaderStrings[1];
+      });
+  
+  return assetsLoadedFuture;
+
 }
 
 void tick(time) {

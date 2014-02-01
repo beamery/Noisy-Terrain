@@ -13,25 +13,10 @@ class World {
   }
   
   void initGL() {
-    String frag = '''
-        precision mediump float;
-
-        void main(void) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-        }
-      ''';
-    String vert = '''
-        attribute vec3 aVertexPosition;
-
-        uniform mat4 uMVMatrix;
-        uniform mat4 uPMatrix;
-
-        void main(void) {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        }
-      ''';
-    
-    program = new ShaderProgram(vert, frag, ['aVertexPosition'], ['uMVMatrix', 'uPMatrix']);
+    String vert = shaders['phong.vert'];
+    String frag = shaders['phong.frag'];
+    program = new ShaderProgram(
+        vert, frag, ['aVertexPosition'], ['uMVMatrix', 'uPMatrix']);
     
     gl.useProgram(program.program);
     
@@ -40,20 +25,28 @@ class World {
     
     gl.bindBuffer(ARRAY_BUFFER, triangleVxPosBuf);
     gl.bufferDataTyped(ARRAY_BUFFER, new Float32List.fromList([
-            0.0,  1.0, 0.0,
-           -1.0, -1.0, 0.0,
-            1.0, -1.0, 0.0
+        0.0,  1.0, 0.0,
+       -1.0, -1.0, 0.0,
+        1.0, -1.0, 0.0
         ]), STATIC_DRAW);
   }
   
-  void initEntities() {
-    terrain = new Terrain(10, 10);
+  void initEntities() {  
+    // Create terrain with random height map
+    int rows = 10;
+    int cols = 10;
+    Random rng = new Random();
+    List<double> heightMap = new List<double>(rows * cols);
+    for (int i = 0; i < heightMap.length; i++) {
+      heightMap[i] = rng.nextDouble();
+    }
+    terrain = new Terrain.fromHeightMap(heightMap, rows, cols);
   }
   
   void drawScene(time) {
     mvPush();
-    mv.translate(0.0, 0.0, -12.0);
-    //mv.rotateX(PI / 4);
+    mv.translate(0.0, 0.0, -15.0);
+    mv.rotateX(PI / 12);
     
     mvPush();
     

@@ -73,7 +73,8 @@ class Mesh {
     
     // Set up array buffer.
     gl.bindBuffer(ARRAY_BUFFER, glVertexBuffer);
-    gl.vertexAttribPointer(program.attributes['aVertexPosition'], 3, FLOAT, false, Vertex.size * 4, 0);
+    gl.vertexAttribPointer(program.attributes['aVertexPosition'], 3, 
+                           FLOAT, false, Vertex.size * 4, 0);
     
     // Set up index buffer.
     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, glIndexBuffer);

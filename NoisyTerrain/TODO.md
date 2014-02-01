@@ -12,6 +12,8 @@ Terrain vertex generation seems to be working fine.
  
 - Make sure our objects render independently of world-space units
  
+- Make camera movement system
+ 
 Next: Lighting system
 - Calculate normals when mesh is generated
 - Add diffuse, specular components to renderable objects
