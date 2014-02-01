@@ -33,8 +33,8 @@ class World {
   
   void initEntities() {  
     // Create terrain with random height map
-    int rows = 16;
-    int cols = 16;
+    int rows = 10;
+    int cols = 10;
     Random rng = new Random();
     List<double> heightMap = new List<double>(rows * cols);
     for (int i = 0; i < heightMap.length; i++) {

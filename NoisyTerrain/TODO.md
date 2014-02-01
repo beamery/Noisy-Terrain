@@ -13,6 +13,7 @@ Terrain vertex generation seems to be working fine.
 - Make sure our objects render independently of world-space units
  
 - Make camera movement system
+  - Allow for camera movement using arrow keys, (click and drag?)
  
 Next: Lighting system
 - Calculate normals when mesh is generated
