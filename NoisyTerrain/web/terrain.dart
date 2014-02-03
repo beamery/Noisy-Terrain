@@ -5,6 +5,9 @@ class Terrain {
   var sizeX;
   var sizeZ;
   
+  /**
+   * Create terrain of dimensions rows x cols, with optional heightmap.
+   */
   Terrain(rows, cols, [heightMap=null]) {
     List<Vertex> vertices = new List<Vertex>(rows * cols);
     
