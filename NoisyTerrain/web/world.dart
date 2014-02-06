@@ -5,7 +5,7 @@ class World {
   Buffer triangleVxPosBuf;
   
   // World entities
-  Terrain terrain;
+  TerrainFragment terrain;
   
   World() {
     initGL();
@@ -16,7 +16,7 @@ class World {
     String vert = shaders['phong.vert'];
     String frag = shaders['phong.frag'];
     program = new ShaderProgram(
-        vert, frag, ['aVertexPosition'], ['uMVMatrix', 'uPMatrix']);
+        vert, frag, ['aPosition', 'aNormal'], ['uMV', 'uProj']);
     
     gl.useProgram(program.program);
     
@@ -25,15 +25,15 @@ class World {
     
     gl.bindBuffer(ARRAY_BUFFER, triangleVxPosBuf);
     gl.bufferDataTyped(ARRAY_BUFFER, new Float32List.fromList([
-        0.0,  1.0, 0.0,
-       -1.0, -1.0, 0.0,
-        1.0, -1.0, 0.0
+        0.0,  1.0, 0.0, 0.0, 0.0, 1.0,
+       -1.0, -1.0, 0.0, 0.0, 0.0, 1.0,
+        1.0, -1.0, 0.0, 0.0, 0.0, 1.0
         ]), STATIC_DRAW);
   }
   
   void initEntities() {  
     // Create terrain with random height map
-    initTerrain(40, 40);
+    initTerrain(200, 200);
   }
   
   /**
@@ -48,9 +48,10 @@ class World {
     Random rng = new Random();
     List<double> heightMap = new List<double>(rows * cols);
     for (int i = 0; i < heightMap.length; i++) {
-      heightMap[i] = rng.nextDouble();
+      heightMap[i] =  rng.nextDouble();
+      //heightMap[i] = 0.0;
     }
-    terrain = new Terrain(rows, cols, heightMap);
+    terrain = new TerrainFragment(rows, cols, heightMap);
   }
   
   void drawScene(time) {
@@ -61,11 +62,12 @@ class World {
     
     // set up triangle buffer
     gl.bindBuffer(ARRAY_BUFFER, triangleVxPosBuf);
-    gl.vertexAttribPointer(program.attributes['aVertexPosition'], 3, FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(program.attributes['aPosition'], 3, FLOAT, false, 6 * 4, 0);
+    gl.vertexAttribPointer(program.attributes['aNormal'], 3, FLOAT, false, 6 * 4, 3 * 4);
     
     // set matrix uniforms
-    gl.uniformMatrix4fv(program.uniforms['uPMatrix'], false, proj.storage);
-    gl.uniformMatrix4fv(program.uniforms['uMVMatrix'], false, mv.storage);
+    gl.uniformMatrix4fv(program.uniforms['uProj'], false, proj.storage);
+    gl.uniformMatrix4fv(program.uniforms['uMV'], false, mv.storage);
     
     gl.drawArrays(TRIANGLES, 0, 3);
     

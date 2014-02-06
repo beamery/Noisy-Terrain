@@ -17,18 +17,25 @@ class ShaderProgram {
     vertShader = gl.createShader(VERTEX_SHADER);
     gl.shaderSource(vertShader, vertSrc);
     gl.compileShader(vertShader);
+    if (!gl.getShaderParameter(vertShader, COMPILE_STATUS)) {
+      print(gl.getShaderInfoLog(vertShader));
+    }
+    
     
     fragShader = gl.createShader(FRAGMENT_SHADER);
     gl.shaderSource(fragShader, fragSrc);
     gl.compileShader(fragShader);
+    if (!gl.getShaderParameter(fragShader, COMPILE_STATUS)) {
+      print(gl.getShaderInfoLog(vertShader));
+    }
     
     program = gl.createProgram();
     gl.attachShader(program, vertShader);
     gl.attachShader(program, fragShader);
     gl.linkProgram(program);
-    
+
     if (!gl.getProgramParameter(program, LINK_STATUS)) {
-      print('Failed to initiailize shaders');
+      print(gl.getProgramInfoLog(program));
     }
     
     for (String attrib in attributeNames) {

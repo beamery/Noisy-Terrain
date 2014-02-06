@@ -12,9 +12,13 @@ Terrain vertex generation seems to be working fine.
  
 - Make camera movement system
   - Allow for camera movement using arrow keys, (click and drag?)
+  
+- **Add drawable axes for debugging purposes**
+- Multiply MV and Proj before sending to shader
+  - Saves the GPU a ton of work
  
 Next: Lighting system
-- Calculate normals when mesh is generated
++ Calculate normals when mesh is generated
 - Add diffuse, specular components to renderable objects
 - Ambient component a part of the world?
   - Maybe implement lights with ambient built in (sounds cool)

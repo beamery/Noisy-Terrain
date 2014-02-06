@@ -9,7 +9,7 @@ import 'package:vector_math/vector_math.dart';
 
 part 'world.dart';
 part 'shader_program.dart';
-part 'terrain.dart';
+part 'terrain_fragment.dart';
 part 'mesh.dart';
 part 'vertex.dart';
 part 'matrix.dart';
@@ -67,8 +67,8 @@ void main() {
 
 Future loadAssets() {
   // Load our assets
-  Future<String> vertFuture = HttpRequest.getString('phong.vert');
-  Future<String> fragFuture = HttpRequest.getString('phong.frag');
+  Future<String> vertFuture = HttpRequest.getString('shaders/phong.vert');
+  Future<String> fragFuture = HttpRequest.getString('shaders/phong.frag');
   
   // Once assets are done loading, add them to our global dictionaries
   Future assetsLoadedFuture = Future.wait([vertFuture, fragFuture])

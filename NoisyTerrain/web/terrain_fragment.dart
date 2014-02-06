@@ -1,6 +1,6 @@
 part of noisyterrain;
 
-class Terrain {
+class TerrainFragment {
   var mesh;
   var sizeX;
   var sizeZ;
@@ -8,7 +8,7 @@ class Terrain {
   /**
    * Create terrain of dimensions rows x cols, with optional heightmap.
    */
-  Terrain(rows, cols, [heightMap=null]) {
+  TerrainFragment(rows, cols, [heightMap=null]) {
     List<Vertex> vertices = new List<Vertex>(rows * cols);
     
     // Initialize the mesh array based on the height map
