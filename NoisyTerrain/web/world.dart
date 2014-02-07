@@ -7,6 +7,7 @@ class World {
   // World entities
   TerrainFragment terrain;
   Axis axis;
+  LightSource light;
   
   World() {
     initGL();
@@ -31,6 +32,12 @@ class World {
     // Create terrain with random height map
     initTerrain(200, 200);
     axis = new Axis();
+    
+    var lightProperties = new Material(
+        new Vector3(0.1, 0.1, 0.1), 
+        new Vector3(0.5, 0.5, 0.5), 
+        new Vector3(0.7, 0.7, 0.7));
+    light = new LightSource(lightProperties, new Vector4(40.0, 40.0, -100.0, 1.0));
   }
   
   /**
@@ -52,22 +59,19 @@ class World {
   }
   
   void drawWorld(time) {
-
-    mvPush();
-    gl.useProgram(defaultShader.program);
-    mv.translate(0.0, 0.0, 0.0);
-    mv.rotateY((time / 1000) * PI / 2);
-   
-    // set up triangle buffer
-    gl.bindBuffer(ARRAY_BUFFER, triangleVxPosBuf);
-    gl.vertexAttribPointer(defaultShader.attributes['aPosition'], 3, FLOAT, false, 6 * 4, 0);
-    gl.vertexAttribPointer(defaultShader.attributes['aNormal'], 3, FLOAT, false, 6 * 4, 3 * 4);
     
-    // set matrix uniforms
-    mvp = proj * mv;
-    gl.uniformMatrix4fv(defaultShader.uniforms['uMVP'], false, mvp.storage); 
-    gl.drawArrays(TRIANGLES, 0, 3);
+    gl.useProgram(defaultShader.program);
+    // Set up light position
+    mvPush();
+    Vector4 eyeLightPos = mv * light.position;
     mvPop();
+    
+    // Push lighting properties to the default shader
+    gl.uniform4fv(defaultShader.uniforms['uLightPos'], eyeLightPos.storage);
+    gl.uniform3fv(defaultShader.uniforms['uLa'], light.properties.ambient.storage);
+    gl.uniform3fv(defaultShader.uniforms['uLd'], light.properties.diffuse.storage);
+    gl.uniform3fv(defaultShader.uniforms['uLs'], light.properties.specular.storage);
+    
     
     // Draw terrain
     mvPush();

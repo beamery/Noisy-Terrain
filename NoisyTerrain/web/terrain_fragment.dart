@@ -27,7 +27,13 @@ class TerrainFragment {
         }
       }
     }
-    mesh = new Mesh(vertices, rows, cols);
+    
+    Material mat = new Material(
+        new Vector3(0.3, 0.3, 0.3), 
+        new Vector3(0.5, 0.5, 0.5), 
+        new Vector3(0.5, 0.5, 0.5), 200.0);
+    
+    mesh = new Mesh(vertices, rows, cols, mat);
     
     // (rows, cols) vertices => grid of size (rows-1, cols-1)
     sizeX = cols - 1;

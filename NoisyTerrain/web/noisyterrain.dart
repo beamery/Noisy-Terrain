@@ -15,6 +15,8 @@ part 'vertex.dart';
 part 'matrix.dart';
 part 'camera.dart';
 part 'axis.dart';
+part 'material.dart';
+part 'light_source.dart';
 
 final int FLOAT_SIZE = 4;
 
@@ -96,7 +98,9 @@ void initShaders() {
   
   shaderManager['phong'] = new ShaderProgram(
       shaders['phong.vert'], shaders['phong.frag'], 
-      ['aPosition', 'aNormal'], ['uMVP']);
+      ['aPosition', 'aNormal'], 
+      ['uMVP', 'uMV', 'uNormalMat', 'uLightPos', 'uKa',
+       'uLa', 'uKd', 'uLd', 'uKs', 'uLs', 'uShine']);
   
   shaderManager['unlit'] = new ShaderProgram(
       shaders['unlit.vert'], shaders['unlit.frag'],
@@ -135,7 +139,7 @@ void tick(time) {
  
   mvPush();
   // Handle camera position
-  mv.translate(0.0, 0.0, -15.0);
+  mv.translate(0.0, 0.0, -50.0);
   mv.rotateX(camera.rotation.x);
   mv.rotateY(camera.rotation.y);
   

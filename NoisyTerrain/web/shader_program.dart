@@ -26,7 +26,7 @@ class ShaderProgram {
     gl.shaderSource(fragShader, fragSrc);
     gl.compileShader(fragShader);
     if (!gl.getShaderParameter(fragShader, COMPILE_STATUS)) {
-      print(gl.getShaderInfoLog(vertShader));
+      print(gl.getShaderInfoLog(fragShader));
     }
     
     program = gl.createProgram();

@@ -6,10 +6,15 @@ class Mesh {
   List<int> indices;
   int rows, cols;
   
-  Mesh(List<Vertex> vertices, int rows, int cols) {
+  // Material properties
+  Material material;
+  
+  Mesh(List<Vertex> vertices, int rows, int cols, Material material) {
+    
     this.indices = [];
     this.rows = rows;
     this.cols = cols;
+    this.material = material;
     
     createIndexArray(vertices, rows, cols);
     getNormals(vertices, rows, cols);
@@ -149,9 +154,18 @@ class Mesh {
     // Set up index buffer.
     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, glIndexBuffer);
     
-    // Set matrix uniforms
+    // Set uniforms
     mvp = proj * mv;
+    Matrix4 normalMat = new Matrix4.identity();
+    normalMat.copyInverse(mv);
+    normalMat.transpose();
+    gl.uniformMatrix4fv(program.uniforms['uNormalMat'], false, normalMat.storage);
+    gl.uniformMatrix4fv(program.uniforms['uMV'], false, mv.storage);
     gl.uniformMatrix4fv(program.uniforms['uMVP'], false, mvp.storage);
+    gl.uniform3fv(program.uniforms['uKa'], material.ambient.storage);
+    gl.uniform3fv(program.uniforms['uKd'], material.diffuse.storage);
+    gl.uniform3fv(program.uniforms['uKs'], material.specular.storage);
+    gl.uniform1f(program.uniforms['uShine'], material.shine);
     
     // Draw lines for debugging purposes only
     //gl.drawElements(LINES, indices.length, UNSIGNED_SHORT, 0);
