@@ -29,9 +29,9 @@ class TerrainFragment {
     }
     
     Material mat = new Material(
-        new Vector3(0.3, 0.3, 0.3), 
-        new Vector3(0.5, 0.5, 0.5), 
-        new Vector3(0.5, 0.5, 0.5), 200.0);
+        new Vector3(0.1, 0.3, 0.1), 
+        new Vector3(0.4, 0.7, 0.4), 
+        new Vector3(0.1, 0.2, 0.1), 10.0);
     
     mesh = new Mesh(vertices, rows, cols, mat);
     

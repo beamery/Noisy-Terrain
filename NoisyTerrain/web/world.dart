@@ -1,6 +1,8 @@
 part of noisyterrain;
 
 class World {
+  final int TERRAIN_SIZE = 200;
+  
   ShaderProgram defaultShader;
   Buffer triangleVxPosBuf;
   
@@ -30,14 +32,14 @@ class World {
   
   void initEntities() {  
     // Create terrain with random height map
-    initTerrain(200, 200);
+    initTerrain(TERRAIN_SIZE, TERRAIN_SIZE);
     axis = new Axis();
     
     var lightProperties = new Material(
         new Vector3(0.1, 0.1, 0.1), 
-        new Vector3(0.5, 0.5, 0.5), 
+        new Vector3(0.9, 0.9, 0.9), 
         new Vector3(0.7, 0.7, 0.7));
-    light = new LightSource(lightProperties, new Vector4(40.0, 40.0, -100.0, 1.0));
+    light = new LightSource(lightProperties, new Vector4(0.0, 50.0, -100.0, 1.0));
   }
   
   /**
@@ -61,6 +63,11 @@ class World {
   void drawWorld(time) {
     
     gl.useProgram(defaultShader.program);
+    
+    mvPush();
+    // Set up eye space to world space scale
+    mv.scale(5.0, 5.0, 5.0);
+    
     // Set up light position
     mvPush();
     Vector4 eyeLightPos = mv * light.position;
@@ -75,15 +82,18 @@ class World {
     
     // Draw terrain
     mvPush();
-    mv.translate(-(terrain.sizeX / 2.0), -1.0, -(terrain.sizeZ / 2.0));
-    //mv.scale(0.2, 0.2, 0.2);
+
+    mv.translate(-(terrain.sizeX / 2.0), 0.0, -(terrain.sizeZ / 2.0));
     terrain.draw(defaultShader);
     mvPop();
     
     // Draw axes
     mvPush();
-    mv.scale(50.0, 50.0, 50.0);
+    mv.translate(0.0, 1.0, 0.0);
+    mv.scale(TERRAIN_SIZE.toDouble(), TERRAIN_SIZE.toDouble(), TERRAIN_SIZE.toDouble());
     axis.draw();
+    mvPop();
+    
     mvPop();
   }
 }

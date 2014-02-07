@@ -35,6 +35,11 @@ Camera camera;
  * scene.
  */
 void main() {
+  
+  // If a smaller canvas is desired (i.e, for screenshotting), just comment
+  // out initCanvas()
+  initCanvas();
+ 
   mv = new Matrix4.identity();
   
   // Get the rendering context we will be drawing to
@@ -42,7 +47,7 @@ void main() {
   if (gl == null) {
     return;
   }
-  gl.clearColor(0.3, 0.3, 0.3, 1.0);
+  gl.clearColor(0.5, 0.6, 1.0, 1.0);
   
   // Initialize keypresses to false
   curKeys = new List<bool>(256);
@@ -68,6 +73,15 @@ void main() {
     
     // Start the render loop
     tick(0);
+  });
+}
+
+void initCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.onResize.listen((Event e) {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   });
 }
 
@@ -128,7 +142,7 @@ void tick(time) {
   }
 
   // Set up GL stuff
-  proj = makePerspectiveMatrix(PI / 4, canvas.width / canvas.height, 1.0, 1000.0);
+  setPerspectiveMatrix(proj, PI / 4, canvas.width / canvas.height, 1.0, 1000.0);
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
   gl.enable(DEPTH_TEST);
@@ -138,10 +152,12 @@ void tick(time) {
   handleKeys(elapsedTime);
  
   mvPush();
-  // Handle camera position
-  mv.translate(0.0, 0.0, -50.0);
+  // Handle camera rotation
   mv.rotateX(camera.rotation.x);
   mv.rotateY(camera.rotation.y);
+  
+  // Handle camera position
+  mv.translate(camera.translation);
   
   // Draw world
   world.drawWorld(time);
@@ -149,17 +165,36 @@ void tick(time) {
 }
 
 void handleKeys(time) {
+  
   time /= 1000.0; // convert time to seconds
   if (curKeys[KeyCode.UP]) {
-    camera.rotation.x += time * PI / 2;
+    camera.turnUp(time * Camera.TURN_SPEED);
   }
   if (curKeys[KeyCode.DOWN]) {
-    camera.rotation.x -= time * PI / 2;
+    camera.turnDown(time * Camera.TURN_SPEED);
   }
   if (curKeys[KeyCode.LEFT]) {
-    camera.rotation.y -= time * PI / 2;
+    camera.turnLeft(time * Camera.TURN_SPEED);
   }
   if (curKeys[KeyCode.RIGHT]) {
-    camera.rotation.y += time * PI / 2;
+    camera.turnRight(time * Camera.TURN_SPEED);
+  }
+  if (curKeys[KeyCode.W]) {
+    camera.moveForward(time * Camera.MOVE_SPEED);
+  }
+  if (curKeys[KeyCode.A]) {
+    camera.moveLeft(time * Camera.MOVE_SPEED);
+  }
+  if (curKeys[KeyCode.S]) {
+    camera.moveBackward(time * Camera.MOVE_SPEED);
+  }
+  if (curKeys[KeyCode.D]) {
+    camera.moveRight(time * Camera.MOVE_SPEED);
+  }
+  if (curKeys[KeyCode.E]) {
+    camera.moveDown(time * Camera.MOVE_SPEED);
+  }
+  if (curKeys[KeyCode.Q]) {
+    camera.moveUp(time * Camera.MOVE_SPEED);
   }
 }
