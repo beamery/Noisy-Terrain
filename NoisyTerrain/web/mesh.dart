@@ -136,18 +136,22 @@ class Mesh {
   
   void draw(ShaderProgram program) {
     mvPush();
-    
+    gl.useProgram(program.program);
     // Set up array buffer.
     gl.bindBuffer(ARRAY_BUFFER, glVertexBuffer);
-    gl.vertexAttribPointer(program.attributes['aPosition'], 3, FLOAT, false, Vertex.size * 4, 0);
-    gl.vertexAttribPointer(program.attributes['aNormal'], 3, FLOAT, false, Vertex.size * 4, 3 * 4);
+    gl.vertexAttribPointer(
+        program.attributes['aPosition'], 3, FLOAT, 
+        false, Vertex.size * FLOAT_SIZE, 0);
+    gl.vertexAttribPointer(
+        program.attributes['aNormal'], 3, FLOAT, 
+        false, Vertex.size * FLOAT_SIZE, 3 * FLOAT_SIZE);
     
     // Set up index buffer.
     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, glIndexBuffer);
     
-    // Set matrix transforms
-    gl.uniformMatrix4fv(program.uniforms['uMV'], false, mv.storage);
-    gl.uniformMatrix4fv(program.uniforms['uProj'], false, proj.storage);
+    // Set matrix uniforms
+    mvp = proj * mv;
+    gl.uniformMatrix4fv(program.uniforms['uMVP'], false, mvp.storage);
     
     // Draw lines for debugging purposes only
     //gl.drawElements(LINES, indices.length, UNSIGNED_SHORT, 0);

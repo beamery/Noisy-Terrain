@@ -14,10 +14,14 @@ part 'mesh.dart';
 part 'vertex.dart';
 part 'matrix.dart';
 part 'camera.dart';
+part 'axis.dart';
+
+final int FLOAT_SIZE = 4;
 
 CanvasElement canvas = querySelector('#main_canvas');
 RenderingContext gl;
 Map<String, String> shaders;
+Map<String, ShaderProgram> shaderManager;
 List<bool> curKeys;
 
 World world;
@@ -67,18 +71,36 @@ void main() {
 
 Future loadAssets() {
   // Load our assets
-  Future<String> vertFuture = HttpRequest.getString('shaders/phong.vert');
-  Future<String> fragFuture = HttpRequest.getString('shaders/phong.frag');
+  List<Future<String>> futureList = new List<Future<String>>();
+  futureList.add(HttpRequest.getString('shaders/phong.vert'));
+  futureList.add(HttpRequest.getString('shaders/phong.frag'));
+  futureList.add(HttpRequest.getString('shaders/unlit.vert'));
+  futureList.add(HttpRequest.getString('shaders/unlit.frag'));
   
   // Once assets are done loading, add them to our global dictionaries
-  Future assetsLoadedFuture = Future.wait([vertFuture, fragFuture])
+  Future assetsLoadedFuture = Future.wait(futureList)
       .then((shaderStrings) {
         shaders['phong.vert'] = shaderStrings[0];
         shaders['phong.frag'] = shaderStrings[1];
+        shaders['unlit.vert'] = shaderStrings[2];
+        shaders['unlit.frag'] = shaderStrings[3];
+        initShaders();
       });
   
   return assetsLoadedFuture;
 
+}
+
+void initShaders() {
+  shaderManager = new Map<String, ShaderProgram>();
+  
+  shaderManager['phong'] = new ShaderProgram(
+      shaders['phong.vert'], shaders['phong.frag'], 
+      ['aPosition', 'aNormal'], ['uMVP']);
+  
+  shaderManager['unlit'] = new ShaderProgram(
+      shaders['unlit.vert'], shaders['unlit.frag'],
+      ['aPosition', 'aColor'], ['uMVP']);
 }
 
 var lastTime = 0.0;
@@ -118,7 +140,7 @@ void tick(time) {
   mv.rotateY(camera.rotation.y);
   
   // Draw world
-  world.drawScene(time);
+  world.drawWorld(time);
   mvPop();
 }
 

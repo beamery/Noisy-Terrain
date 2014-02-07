@@ -1,11 +1,12 @@
 part of noisyterrain;
 
 class World {
-  ShaderProgram program;
+  ShaderProgram defaultShader;
   Buffer triangleVxPosBuf;
   
   // World entities
   TerrainFragment terrain;
+  Axis axis;
   
   World() {
     initGL();
@@ -13,12 +14,7 @@ class World {
   }
   
   void initGL() {
-    String vert = shaders['phong.vert'];
-    String frag = shaders['phong.frag'];
-    program = new ShaderProgram(
-        vert, frag, ['aPosition', 'aNormal'], ['uMV', 'uProj']);
-    
-    gl.useProgram(program.program);
+    defaultShader = shaderManager['phong'];
     
     // Allocate and build the vertex buffer for our triangle
     triangleVxPosBuf = gl.createBuffer();
@@ -34,6 +30,7 @@ class World {
   void initEntities() {  
     // Create terrain with random height map
     initTerrain(200, 200);
+    axis = new Axis();
   }
   
   /**
@@ -54,30 +51,35 @@ class World {
     terrain = new TerrainFragment(rows, cols, heightMap);
   }
   
-  void drawScene(time) {
+  void drawWorld(time) {
+
     mvPush();
-    
+    gl.useProgram(defaultShader.program);
     mv.translate(0.0, 0.0, 0.0);
     mv.rotateY((time / 1000) * PI / 2);
-    
+   
     // set up triangle buffer
     gl.bindBuffer(ARRAY_BUFFER, triangleVxPosBuf);
-    gl.vertexAttribPointer(program.attributes['aPosition'], 3, FLOAT, false, 6 * 4, 0);
-    gl.vertexAttribPointer(program.attributes['aNormal'], 3, FLOAT, false, 6 * 4, 3 * 4);
+    gl.vertexAttribPointer(defaultShader.attributes['aPosition'], 3, FLOAT, false, 6 * 4, 0);
+    gl.vertexAttribPointer(defaultShader.attributes['aNormal'], 3, FLOAT, false, 6 * 4, 3 * 4);
     
     // set matrix uniforms
-    gl.uniformMatrix4fv(program.uniforms['uProj'], false, proj.storage);
-    gl.uniformMatrix4fv(program.uniforms['uMV'], false, mv.storage);
-    
+    mvp = proj * mv;
+    gl.uniformMatrix4fv(defaultShader.uniforms['uMVP'], false, mvp.storage); 
     gl.drawArrays(TRIANGLES, 0, 3);
-    
     mvPop();
     
     // Draw terrain
     mvPush();
     mv.translate(-(terrain.sizeX / 2.0), -1.0, -(terrain.sizeZ / 2.0));
     //mv.scale(0.2, 0.2, 0.2);
-    terrain.draw(program);
+    terrain.draw(defaultShader);
+    mvPop();
+    
+    // Draw axes
+    mvPush();
+    mv.scale(50.0, 50.0, 50.0);
+    axis.draw();
     mvPop();
   }
 }
