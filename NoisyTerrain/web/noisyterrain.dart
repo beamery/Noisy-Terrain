@@ -6,6 +6,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:async';
 import 'package:vector_math/vector_math.dart';
+import 'util.dart';
 
 part 'world.dart';
 part 'shader_program.dart';

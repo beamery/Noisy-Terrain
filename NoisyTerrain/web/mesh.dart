@@ -9,15 +9,15 @@ class Mesh {
   // Material properties
   Material material;
   
-  Mesh(List<Vertex> vertices, int rows, int cols, Material material) {
+  Mesh(Grid2D<Vertex> vertices, Material material) {
     
     this.indices = [];
-    this.rows = rows;
-    this.cols = cols;
+    this.rows = vertices.rows;
+    this.cols = vertices.cols;
     this.material = material;
     
-    createIndexArray(vertices, rows, cols);
-    getNormals(vertices, rows, cols);
+    createIndexArray(vertices);
+    getNormals(vertices);
     flattenVertices(vertices);
     glSetup();
   }
@@ -26,18 +26,18 @@ class Mesh {
    * Create an index array which specifies the drawing order of our vertices.
    * We will draw all of our triangles clockwise for consistency.
    */
-  void createIndexArray(List<Vertex> vertices, int rows, int cols) {
-    for (int i = 0; i < rows - 1; i++) {
-      for (int j = 0; j < cols - 1; j++) {     
+  void createIndexArray(Grid2D<Vertex> vertices) {
+    for (int i = 0; i < vertices.rows - 1; i++) {
+      for (int j = 0; j < vertices.cols - 1; j++) {     
         // Top-left triangle
-        indices.add(getIndex(i, j));
-        indices.add(getIndex(i, j+1));
-        indices.add(getIndex(i+1, j));
+        indices.add(vertices.flatIndex(i, j));
+        indices.add(vertices.flatIndex(i, j+1));
+        indices.add(vertices.flatIndex(i+1, j));
         
         // bottom-right triangle
-        indices.add(getIndex(i+1, j));
-        indices.add(getIndex(i, j+1));
-        indices.add(getIndex(i+1, j+1));
+        indices.add(vertices.flatIndex(i+1, j));
+        indices.add(vertices.flatIndex(i, j+1));
+        indices.add(vertices.flatIndex(i+1, j+1));
       }
     }
   }
@@ -45,46 +45,55 @@ class Mesh {
   /**
    * Get the normals for each vertex and store them in the vertices.
    */
-  void getNormals(List<Vertex> vertices, int rows, int cols) {    
-    // Initialize the normal lists. 
-    List<List<Vector3>> perVertexNormals = new List<List<Vector3>>(rows * cols);
-    for (int i = 0; i < perVertexNormals.length; i++) {
-      perVertexNormals[i] = new List<Vector3>();
+  void getNormals(Grid2D<Vertex> vertices) {
+    int rows = vertices.rows;
+    int cols = vertices.cols;
+    
+    // Initialize the normal lists as a 2D grid of vertex normal lists.
+    Grid2D<List<Vector3>> perVertexNormals = new Grid2D<List<Vector3>>(rows, cols);
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        perVertexNormals[i][j] = new List<Vector3>();
+      }
     }
     
+    // Get a list of normals for each vertex, corresponding to each triangle
+    // which contains that vertex.
     for (int i = 0; i < rows - 1; i++) {
       for (int j = 0; j < cols - 1; j++) {
         // Top-left triangle
         Vector3 normalizedNorm = getNormFromTriangle(
-            vertices[getIndex(i, j)].position,
-            vertices[getIndex(i, j+1)].position,
-            vertices[getIndex(i+1, j)].position);
+            vertices[i][j].position,
+            vertices[i][j+1].position,
+            vertices[i+1][j].position);
         if ((normalizedNorm.length - 1).abs() > 0.0001) {
           print('ERROR: Length of normal does not equal 1.0');
         }
-        perVertexNormals[getIndex(i, j)].add(normalizedNorm.clone());
-        perVertexNormals[getIndex(i, j+1)].add(normalizedNorm.clone());
-        perVertexNormals[getIndex(i+1, j)].add(normalizedNorm.clone());
+        perVertexNormals[i][j].add(normalizedNorm.clone());
+        perVertexNormals[i][j+1].add(normalizedNorm.clone());
+        perVertexNormals[i+1][j].add(normalizedNorm.clone());
         
         // Bottom-right triangle
         normalizedNorm = getNormFromTriangle(
-            vertices[getIndex(i+1, j)].position,
-            vertices[getIndex(i, j+1)].position,
-            vertices[getIndex(i+1, j+1)].position);
+            vertices[i+1][j].position,
+            vertices[i][j+1].position,
+            vertices[i+1][j+1].position);
         if ((normalizedNorm.length - 1).abs() > 0.0001) {
           print('ERROR: Length of normal does not equal 1.0');
         }
-        perVertexNormals[getIndex(i+1, j)].add(normalizedNorm.clone());
-        perVertexNormals[getIndex(i, j+1)].add(normalizedNorm.clone());
-        perVertexNormals[getIndex(i+1, j+1)].add(normalizedNorm.clone());
+        perVertexNormals[i+1][j].add(normalizedNorm.clone());
+        perVertexNormals[i][j+1].add(normalizedNorm.clone());
+        perVertexNormals[i+1][j+1].add(normalizedNorm.clone());
         
       }
       
       // Average the calculated normals to get final normals. Store these
       // final numbers in the normal field of the corresponding vertex.
-      for (int i = 0; i < perVertexNormals.length; i++) {
-        Vector3 avgNorm = getAverageNorm(perVertexNormals[i]);
-        vertices[i].normal = avgNorm;
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+          Vector3 avgNorm = getAverageNorm(perVertexNormals[i][j]);
+          vertices[i][j].normal = avgNorm;
+        }
       }
     }
   }
@@ -111,11 +120,12 @@ class Mesh {
    * Flatten the vertex array into a 1D array of Float32 objects. This makes
    * our meshes easier for the rendering system to handle.
    */
-  void flattenVertices(List<Vertex> vertices) {
-    vertexData = new Float32List(vertices.length * Vertex.size);
+  void flattenVertices(Grid2D<Vertex> vertices) {
+    List<Vertex> flatVerts = vertices.flatten();
+    vertexData = new Float32List(flatVerts.length * Vertex.size);
     
-    for (int i = 0; i < vertices.length; i++) {   
-      Float32List vxData = vertices[i].data;
+    for (int i = 0; i < flatVerts.length; i++) {   
+      Float32List vxData = flatVerts[i].data;
       for (int j = 0; j < vxData.length; j++) {
         vertexData[i * Vertex.size + j] = vxData[j];
       }
@@ -133,10 +143,6 @@ class Mesh {
     glIndexBuffer = gl.createBuffer();
     gl.bindBuffer(ELEMENT_ARRAY_BUFFER, glIndexBuffer);
     gl.bufferDataTyped(ELEMENT_ARRAY_BUFFER, new Int16List.fromList(indices), STATIC_DRAW);
-  }
-  
-  int getIndex(r, c) {
-    return r * cols + c;
   }
   
   void draw(ShaderProgram program) {

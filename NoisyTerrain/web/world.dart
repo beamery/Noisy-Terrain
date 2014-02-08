@@ -52,10 +52,12 @@ class World {
     cols++;
     
     Random rng = new Random();
-    List<double> heightMap = new List<double>(rows * cols);
-    for (int i = 0; i < heightMap.length; i++) {
-      heightMap[i] =  rng.nextDouble();
-      //heightMap[i] = 0.0;
+    Grid2D<double> heightMap = new Grid2D<double>(rows, cols);
+    for (int i = 0; i < heightMap.rows; i++) {
+      for (int j = 0; j < heightMap.cols; j++) {
+        heightMap[i][j] =  rng.nextDouble();
+        //heightMap[i][j] = 0.0; 
+      }
     }
     terrain = new TerrainFragment(rows, cols, heightMap);
   }
