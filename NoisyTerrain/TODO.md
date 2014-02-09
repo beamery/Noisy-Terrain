@@ -18,7 +18,14 @@ Feb. 6
 ------
 - Lighting system is working (wewt!)
 
-- Make camera movement system
++ Make camera movement system
   - Allow for camera movement using arrow keys, (click and drag?)
  
-- Implement Perlin noise and start using it for height maps
++ Implement Perlin noise and start using it for height maps
+
+Feb. 8
+------
+- Implement walking camera
+- Implement terrain texturing
+- Figure out desired art style for the project
+

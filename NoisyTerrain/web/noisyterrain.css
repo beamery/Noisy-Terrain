@@ -18,6 +18,8 @@ h1, p {
 
 canvas {
   display: block;
+  /*margin: 5px;
+  border: 1px solid black;*/
 }
 
 #fps_counter {

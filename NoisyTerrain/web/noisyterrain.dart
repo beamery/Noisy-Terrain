@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:vector_math/vector_math.dart';
 import 'util.dart';
 
+part 'tests.dart';
 part 'world.dart';
 part 'shader_program.dart';
 part 'terrain_fragment.dart';
@@ -40,6 +41,8 @@ void main() {
   // If a smaller canvas is desired (i.e, for screenshotting), just comment
   // out initCanvas()
   initCanvas();
+  
+  //_testNoise();
  
   mv = new Matrix4.identity();
   
@@ -62,7 +65,6 @@ void main() {
   window.onKeyUp.listen((KeyboardEvent e) {
     curKeys[e.keyCode] = false;
   });
-  
   // Load program assets
   shaders = new Map<String, String>();
   Future assetsLoadedFuture = loadAssets();
@@ -102,6 +104,9 @@ Future loadAssets() {
         shaders['unlit.vert'] = shaderStrings[2];
         shaders['unlit.frag'] = shaderStrings[3];
         initShaders();
+      })
+      .catchError((Error e) {
+        print('Error: could not load shaders');
       });
   
   return assetsLoadedFuture;
@@ -143,7 +148,7 @@ void tick(time) {
   }
 
   // Set up GL stuff
-  setPerspectiveMatrix(proj, PI / 4, canvas.width / canvas.height, 1.0, 1000.0);
+  setPerspectiveMatrix(proj, PI / 4, canvas.width / canvas.height, 1.0, 10000.0);
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
   gl.enable(DEPTH_TEST);

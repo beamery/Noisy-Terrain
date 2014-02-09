@@ -32,7 +32,7 @@ class World {
   
   void initEntities() {  
     // Create terrain with random height map
-    initTerrain(TERRAIN_SIZE, TERRAIN_SIZE);
+    initTerrain(TERRAIN_SIZE);
     axis = new Axis();
     
     var lightProperties = new Material(
@@ -47,10 +47,9 @@ class World {
    * and cols before creation because, in order to get an NxN grid,
    * we need (N+1)x(N+1) vertices.
    */
-  void initTerrain(int rows, int cols) {
-    rows++;
-    cols++;
-    
+  void initTerrain(int size) {
+    size++;
+    /*
     Random rng = new Random();
     Grid2D<double> heightMap = new Grid2D<double>(rows, cols);
     for (int i = 0; i < heightMap.rows; i++) {
@@ -59,7 +58,24 @@ class World {
         //heightMap[i][j] = 0.0; 
       }
     }
-    terrain = new TerrainFragment(rows, cols, heightMap);
+    */
+    Grid2D<double> heightMap = perlinNoise(size, 4, 20, 8, 0.5);
+    double min = 1000.0;
+    double max = -1000.0;
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < size; j++) {
+        if (heightMap[i][j] < min) {
+          min = heightMap[i][j];
+        }
+        if (heightMap[i][j] > max) {
+          max = heightMap[i][j];
+        }
+      }
+    }
+    print('min: $min');
+    print('max: $max');
+    
+    terrain = new TerrainFragment(size, size, heightMap);
   }
   
   void drawWorld(time) {

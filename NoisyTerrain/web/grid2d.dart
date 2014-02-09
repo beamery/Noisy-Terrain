@@ -46,4 +46,17 @@ class Grid2D<E> {
   
   operator [](int index) => _items[index];
   operator []=(int index, List<E> list) => _items[index] = list;
+  
+  operator +(Grid2D<E> other) {
+    if (other.rows != this.rows || other.cols != this.cols) {
+      throw new Exception('Grid dimensions do not match');
+    }
+    Grid2D sum = new Grid2D<E>(this.rows, this.cols);
+    for (int i = 0; i < this.rows; i++) {
+      for (int j = 0; j < this.cols; j++) {
+        sum[i][j] = this[i][j] + other[i][j];
+      }
+    }
+    return sum;
+  }
 }

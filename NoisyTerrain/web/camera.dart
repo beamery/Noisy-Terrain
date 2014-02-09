@@ -2,7 +2,7 @@ part of noisyterrain;
 
 class Camera {
   
-  static final double MOVE_SPEED = 20.0;
+  static final double MOVE_SPEED = 200.0;
   static final double TURN_SPEED = PI / 2;
   
   Vector3 rotation;
