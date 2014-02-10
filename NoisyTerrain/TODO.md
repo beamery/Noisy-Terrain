@@ -1,7 +1,4 @@
 Noisy Terrain TODO:
-
-- Should make sure the height maps are preserved when the terrain is created
-  - Maybe just by saving the initial vertex array
     
     
 Jan. 30
@@ -25,7 +22,7 @@ Feb. 6
 
 Feb. 8
 ------
-- Implement walking camera
++ Implement walking camera
 - Implement terrain texturing
 - Figure out desired art style for the project
 

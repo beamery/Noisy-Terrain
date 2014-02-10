@@ -53,26 +53,6 @@ Grid2D<double> _generateNoise(type, size, freq, amp, octaves, persistence) {
   return output;
 }
 
-double interp(val, [type='CUBIC']) {
-  switch (type) {
-    case 'CUBIC':
-      return cubicInterp(val);
-      break;
-    case 'LINEAR':
-      return linearInterp(val);
-      break;
-  }
-}
-
-double cubicInterp(val, [min=0, max=1]) {
-  return 3 * pow(val, 2) - 2 * pow(val, 3);
-}
-
-double linearInterp(val, [min=0, max=1]) {
-  return val;
-  //return min + (max - min) * val;
-}
-
 Grid2D<double> _perlin(size, freq, amp) {
   
   Random rng = new Random();
@@ -117,16 +97,11 @@ Grid2D<double> _perlin(size, freq, amp) {
       double mag_x1y0 = v_x1y0.dot(vals[x1][y0]);
       double mag_x1y1 = v_x1y1.dot(vals[x1][y1]);
       
-      // Smoothly interpolate in x-direction for y0 and y1.
-      double interpX = interp(v_x0y0.x, 'CUBIC');
-      double xy0 = mag_x0y0 + (mag_x1y0 - mag_x0y0) * interpX;
-      double xy1 = mag_x0y1 + (mag_x1y1 - mag_x0y1) * interpX;
-      
-      // Smoothly interpolate in the y-direction
-      var interpY = interp(v_x0y0.y, 'CUBIC');
-      double outVal = xy0 + (xy1 - xy0) * interpY;
-      
-      output[i][j] = outVal * amp;
+      // Get the output value, interpolated in the x and y directions.
+      output[i][j] = amp * interp2D(
+          mag_x0y0, mag_x0y1, 
+          mag_x1y0, mag_x1y1, 
+          v_x0y0.x, v_x0y0.y, 'CUBIC');
     }
   }
   return output;
@@ -162,23 +137,17 @@ Grid2D<double> _value(size, freq, amp) {
       // Calculate the vector from x0y0 to xy, used in the interpolatiion step.
       Vector2 v_x0y0 = new Vector2(x - x0, y - y0);
       
-      // Calculate the dot products to find the weight of each corner on
-      // the output point.
+      // Get the weight at each corner.
       double mag_x0y0 = vals[x0][y0];
       double mag_x0y1 = vals[x0][y1];
       double mag_x1y0 = vals[x1][y0];
       double mag_x1y1 = vals[x1][y1];
       
-      // Smoothly interpolate in x-direction for y0 and y1.
-      double interpX = interp(v_x0y0.x, 'LINEAR');
-      double xy0 = mag_x0y0 + (mag_x1y0 - mag_x0y0) * interpX;
-      double xy1 = mag_x0y1 + (mag_x1y1 - mag_x0y1) * interpX;
-      
-      // Smoothly interpolate in the y-direction
-      var interpY = interp(v_x0y0.y, 'LINEAR');
-      double outVal = xy0 + (xy1 - xy0) * interpY;
-      
-      output[i][j] = outVal * amp;
+      // Get the output value, interpolated in the x and y directions.
+      output[i][j] = amp * interp2D(
+          mag_x0y0, mag_x0y1, 
+          mag_x1y0, mag_x1y1, 
+          v_x0y0.x, v_x0y0.y, 'CUBIC');
     }
   }
   return output;

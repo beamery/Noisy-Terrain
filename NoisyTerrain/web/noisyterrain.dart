@@ -15,10 +15,11 @@ part 'terrain_fragment.dart';
 part 'mesh.dart';
 part 'vertex.dart';
 part 'matrix.dart';
-part 'camera.dart';
 part 'axis.dart';
 part 'material.dart';
 part 'light_source.dart';
+part 'player.dart';
+part 'keyboard.dart';
 
 final int FLOAT_SIZE = 4;
 
@@ -26,10 +27,9 @@ CanvasElement canvas = querySelector('#main_canvas');
 RenderingContext gl;
 Map<String, String> shaders;
 Map<String, ShaderProgram> shaderManager;
-List<bool> curKeys;
+bool renderWireframe = false;
 
 World world;
-Camera camera;
 
 /**
  * This is where initial program setup will be handled. Our rendering loop
@@ -53,18 +53,9 @@ void main() {
   }
   gl.clearColor(0.5, 0.6, 1.0, 1.0);
   
-  // Initialize keypresses to false
-  curKeys = new List<bool>(256);
-  for (int i = 0; i < curKeys.length; i++) {
-    curKeys[i] = false;
-  }
-  // Set up input handlers
-  window.onKeyDown.listen((KeyboardEvent e) {
-    curKeys[e.keyCode] = true;
-  });
-  window.onKeyUp.listen((KeyboardEvent e) {
-    curKeys[e.keyCode] = false;
-  });
+  // Initialize keyboard handler
+  initKeyboard();
+  
   // Load program assets
   shaders = new Map<String, String>();
   Future assetsLoadedFuture = loadAssets();
@@ -72,7 +63,7 @@ void main() {
   // Initialize and start the simulation
   assetsLoadedFuture.then((_) {
     world = new World();
-    camera = new Camera();
+    world.init();
     
     // Start the render loop
     tick(0);
@@ -153,54 +144,18 @@ void tick(time) {
   gl.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT);
   gl.enable(DEPTH_TEST);
   gl.disable(BLEND);
-  
-  // Handle keyboard input
-  handleKeys(elapsedTime);
  
   mvPush();
-  // Handle camera rotation
+  /*// Handle camera rotation
   mv.rotateX(camera.rotation.x);
   mv.rotateY(camera.rotation.y);
   
   // Handle camera position
   mv.translate(camera.translation);
-  
+  */
   // Draw world
-  world.drawWorld(time);
+  world.update(elapsedTime);
+  world.draw(time);
   mvPop();
 }
 
-void handleKeys(time) {
-  
-  time /= 1000.0; // convert time to seconds
-  if (curKeys[KeyCode.UP]) {
-    camera.turnUp(time * Camera.TURN_SPEED);
-  }
-  if (curKeys[KeyCode.DOWN]) {
-    camera.turnDown(time * Camera.TURN_SPEED);
-  }
-  if (curKeys[KeyCode.LEFT]) {
-    camera.turnLeft(time * Camera.TURN_SPEED);
-  }
-  if (curKeys[KeyCode.RIGHT]) {
-    camera.turnRight(time * Camera.TURN_SPEED);
-  }
-  if (curKeys[KeyCode.W]) {
-    camera.moveForward(time * Camera.MOVE_SPEED);
-  }
-  if (curKeys[KeyCode.A]) {
-    camera.moveLeft(time * Camera.MOVE_SPEED);
-  }
-  if (curKeys[KeyCode.S]) {
-    camera.moveBackward(time * Camera.MOVE_SPEED);
-  }
-  if (curKeys[KeyCode.D]) {
-    camera.moveRight(time * Camera.MOVE_SPEED);
-  }
-  if (curKeys[KeyCode.E]) {
-    camera.moveDown(time * Camera.MOVE_SPEED);
-  }
-  if (curKeys[KeyCode.Q]) {
-    camera.moveUp(time * Camera.MOVE_SPEED);
-  }
-}

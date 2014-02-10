@@ -1,14 +1,28 @@
 part of noisyterrain;
 
 class TerrainFragment {
-  var mesh;
-  var sizeX;
-  var sizeZ;
+  Mesh mesh;
+  Grid2D<double> heightMap;
+  num sizeX;
+  num sizeZ;
   
   /**
    * Create terrain of dimensions rows x cols, with optional heightmap.
    */
   TerrainFragment(rows, cols, [Grid2D<double> heightMap=null]) {
+    // Keep a copy of the height map attached to this terrain segment.
+    if (heightMap == null) {
+      this.heightMap = new Grid2D<double>(rows, cols);
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+          heightMap[i][j] = 0.0;
+        }
+      }
+    }
+    else {
+      this.heightMap = heightMap;
+    }
+    
     Grid2D<Vertex> vertices = new Grid2D<Vertex>(rows, cols);
     //List<Vertex> vertices = new List<Vertex>(rows * cols);
     

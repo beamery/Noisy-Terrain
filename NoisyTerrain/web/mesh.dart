@@ -174,9 +174,12 @@ class Mesh {
     gl.uniform1f(program.uniforms['uShine'], material.shine);
     
     // Draw lines for debugging purposes only
-    //gl.drawElements(LINES, indices.length, UNSIGNED_SHORT, 0);
-    gl.drawElements(TRIANGLES, indices.length, UNSIGNED_SHORT, 0);
-    
+    if (renderWireframe) {
+      gl.drawElements(LINES, indices.length, UNSIGNED_SHORT, 0);
+    }
+    else {
+      gl.drawElements(TRIANGLES, indices.length, UNSIGNED_SHORT, 0);      
+    }
     mvPop();
   }
 

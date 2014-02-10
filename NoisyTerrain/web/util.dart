@@ -5,3 +5,4 @@ import 'dart:math';
 
 part 'noise.dart';
 part 'grid2d.dart';
+part 'interp.dart';
